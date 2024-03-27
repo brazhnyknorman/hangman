@@ -1,0 +1,5 @@
+--- !ruby/object:Game
+random_word: spend
+guess_count: 4
+user_word: 
+revealed: "*****"

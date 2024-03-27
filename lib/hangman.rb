@@ -1,3 +1,5 @@
+require 'yaml'
+
 def clean_dictionary
   possible_words = []
   File.readlines('dictionary.txt').each do |line|
@@ -29,8 +31,12 @@ class Game
     if guess.downcase == @random_word
       puts 'You won!'
       exit
+    elsif guess == 'savegame'
+      save_game
+    elsif guess == 'loadgame'
+      load_game
     else
-      hint(guess.chomp)
+      hint(guess)
     end
   end
 
@@ -52,11 +58,30 @@ class Game
   def game_over?
     guess_count.zero?
   end
+
+  def save_game
+    File.open('saves.yaml', 'w') do |f|
+      f.write(YAML.dump(self))
+    end
+  end
+
+  def load_game
+    load_data(YAML.safe_load(File.open('saves.yaml', 'r'), permitted_classes: [self.class]))
+  end
+
+  def load_data(obj)
+    @random_word = obj.random_word
+    @guess_count = obj.guess_count
+    @user_word = obj.user_word
+    @revealed = obj.revealed
+  end
 end
 
 game = Game.new
 
 puts 'Welcome to Hangman! A game so well known that it needs no introduction.'
+puts 'To save the game, type in savegame at any time!'
+puts 'Enter loadgame to load a previous game.'
 
 until game.game_over? == true
   print 'Enter your guess: '
